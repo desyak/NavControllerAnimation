@@ -62,8 +62,8 @@
             filePath = "NavControllerAnimation/TransitionManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "17"
-            endingLineNumber = "17"
+            startingLineNumber = "19"
+            endingLineNumber = "19"
             landmarkName = "animateTransition(using:)"
             landmarkType = "7">
          </BreakpointContent>
