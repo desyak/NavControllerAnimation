@@ -10,11 +10,12 @@ import UIKit
 
 class ViewController: UIViewController {
 
-    private let transitionManager = TransitionManager()
+   // private let transitionManager = AnimationPush()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.transitioningDelegate = transitionManager
+        transitioningDelegate = self
+        //self.transitioningDelegate = transitionManager
         
     }
 
@@ -22,14 +23,29 @@ class ViewController: UIViewController {
         
     }
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        let toViewController = segue.destination as UIViewController
-        toViewController.modalPresentationStyle = .overCurrentContext
-        toViewController.transitioningDelegate = transitionManager
-      
-        
-    }
-
- 
+//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+//        let toViewController = segue.destination as? ViewController
+//
+//        toViewController?.modalPresentationStyle = .custom
+//        toViewController?.transitioningDelegate = self
+//        //toViewController?.modalPresentationCapturesStatusBarAppearance = true
+//
+//
+//    }
+    
 }
+    extension ViewController: UIViewControllerTransitioningDelegate {
+
+        func animationController(forPresented presented: UIViewController,
+                                 presenting: UIViewController,
+                                 source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+            return AnimationPush(presenting: true)
+        }
+
+        func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+            return AnimationPush(presenting: false)
+        }
+    }
+ 
+
 

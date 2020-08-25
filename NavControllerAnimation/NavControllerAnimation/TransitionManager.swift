@@ -8,54 +8,116 @@
 
 import UIKit
 
-class TransitionManager: NSObject , UIViewControllerAnimatedTransitioning, UIViewControllerTransitioningDelegate {
-    let count = 7
+class AnimationPush: NSObject , UIViewControllerAnimatedTransitioning, UIViewControllerTransitioningDelegate {
+    
+    private let presenting: Bool
+    
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return 0.6
     }
     
+    
+    
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        // код анимации
-            // 1
+
         let container = transitionContext.containerView
         let fromView = transitionContext.viewController(forKey: .from)!
         let toView = transitionContext.viewController(forKey: .to)!
-                
-            // 2
-        let offScreenRight = CGAffineTransform(translationX: container.frame.width, y: 0)
-        let offScreenLeft = CGAffineTransform(translationX: -container.frame.width, y: 0)
-                
-            // 3
-        toView.view.transform = offScreenRight
-                
-            // 4
-        container.addSubview(toView.view)
+        let offScreenRight: CGAffineTransform
+        let offScreenLeft: CGAffineTransform
+        
+    
+        if presenting {
+            container.addSubview(toView.view)
+             offScreenRight = CGAffineTransform(translationX: container.frame.width, y: 0)
+             offScreenLeft = CGAffineTransform(translationX: -container.frame.width, y: 0)
+        } else {
+            container.insertSubview(toView.view, belowSubview: fromView.view)
+             offScreenRight = CGAffineTransform(translationX: -container.frame.width, y: 0)
+             offScreenLeft = CGAffineTransform(translationX: container.frame.width, y: 0)
+        }
+        
+        
+     
+        //container.addSubview(toView.view)
+        //toView.view.frame = fromView.view.frame
         //container.addSubview(fromView.view)
-                
-            // 5
+        
+        toView.view.transform = offScreenRight
         let duration = self.transitionDuration(using: transitionContext)
-                
-            // 6
+        
         UIView.animate(withDuration: duration, delay: 0.0, usingSpringWithDamping: 0.49, initialSpringVelocity: 0.81, options: [], animations: { () -> Void in
             fromView.view.transform = offScreenLeft
             toView.view.transform = .identity
-                }) { finished in
-                    // 7
-                    transitionContext.completeTransition(true)
+        }) { finished in
+            let success = !transitionContext.transitionWasCancelled
+            if !success {
+                toView.view.removeFromSuperview()
             }
-        print("change")
+            transitionContext.completeTransition(true)
+        }
+        print("Push")
     }
     
-    // MARK: методы протокола UIViewControllerTransitioningDelegate
-    
-    // аниматор для презентации viewcontroller
-    func animationControllerForPresentedController(presented: UIViewController, presentingController presenting: UIViewController, sourceController source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return self
+    init(presenting: Bool) {
+        self.presenting = presenting
     }
     
-    // аниматор для скрытия viewcontroller
-    func animationControllerForDismissedController(dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return self
+}
+
+class AnimationPop: NSObject , UIViewControllerAnimatedTransitioning, UIViewControllerTransitioningDelegate {
+    
+ 
+    
+    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
+        return 0.6
     }
+    
+    
+    
+    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+
+        let container = transitionContext.containerView
+        let fromView = transitionContext.viewController(forKey: .from)!
+        let toView = transitionContext.viewController(forKey: .to)!
+        container.addSubview(toView.view)
+        //container.addSubview(fromView.view)
+        container.sendSubviewToBack(toView.view)
+         fromView.view.frame = toView.view.frame
+        
+        
+   
+        let offScreenRight = CGAffineTransform(translationX: -container.frame.width, y: 0)
+        let offScreenLeft = CGAffineTransform(translationX: container.frame.width, y: 0)
+        
+    
+        toView.view.transform = offScreenRight
+        
+        
+//        container.insertSubview(toView.view, belowSubview: fromView.view)
+//        container.addSubview(fromView.view)
+        
+
+        
+       
+        let duration = self.transitionDuration(using: transitionContext)
+        
+     
+        UIView.animate(withDuration: duration, delay: 0.0, usingSpringWithDamping: 0.49, initialSpringVelocity: 0.81, options: [], animations: { () -> Void in
+            fromView.view.transform = offScreenLeft
+            toView.view.transform = .identity
+        }) { finished in
+           
+            if finished && !transitionContext.transitionWasCancelled {
+                       fromView.removeFromParent()
+                   } else if transitionContext.transitionWasCancelled {
+                       toView.view.transform = .identity
+                   }
+                transitionContext.completeTransition(true)
+            }
+        
+        print("Pop")
+    }
+    
 
 }
